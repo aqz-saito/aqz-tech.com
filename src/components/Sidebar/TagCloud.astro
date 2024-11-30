@@ -18,12 +18,14 @@
  * ```
  */
 
- import { getPublishedBlogCollection } from '@/utils/collections';
-import { getPublishedPosts } from "@/utils/collections";
-import type { BlogPost } from "@/utils/collections";
+import {
+  getPublishedBlogCollection,
+  getPublishedPosts,
+  type BlogPost,
+} from "@/utils/collections";
 
 // Get published posts and extract tags
-const allPosts = await getPublishedBlogCollection() as BlogPost[];
+const allPosts = (await getPublishedBlogCollection()) as BlogPost[];
 const publishedPosts = getPublishedPosts(allPosts);
 
 // Count tag occurrences

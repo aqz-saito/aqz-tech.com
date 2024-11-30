@@ -1,56 +1,44 @@
 import type { CollectionEntry } from "astro:content";
 import { getCollection } from 'astro:content';
 
-export interface BlogPost extends CollectionEntry<"blog"> {
-    data: {
-        title: string;
-        pubDate: Date;
-        draft?: boolean;
-        tags: string[];
-        category: string;
-    };
-}
+export type BlogPost = CollectionEntry<"blog">;
 
-/**
- * Get published blog posts
- * 
- * Filters out:
- * - Draft posts in production
- * - Posts with future publication dates in production
- * - Respects draft status in development
- *
- * @param posts - Collection of blog posts
- * @returns Filtered array of posts
- */
 export const getPublishedPosts = (posts: BlogPost[]): BlogPost[] => {
-    const now = new Date();
+    const currentDate = new Date();
+    const isProd = process.env.NODE_ENV === 'production';
 
     return posts.filter((post) => {
-        // Always show all posts in development
-        if (!import.meta.env.PROD) return true;
-
-        // In production:
-        // 1. Filter out drafts
-        // 2. Filter out future posts
+        if (!isProd) return true;
         return (
             !post.data.draft &&
-            new Date(post.data.pubDate) <= now
+            new Date(post.data.pubDate) <= currentDate
         );
     });
 };
 
-/**
- * Safely get published blog posts directly from collection
- * 
- * @returns Promise of filtered blog posts
- */
 export const getPublishedBlogCollection = async (): Promise<BlogPost[]> => {
-    const now = new Date();
-    return await getCollection('blog', ({ data }: { data: BlogPost['data'] }) => {
-        if (!import.meta.env.PROD) return true;
-        return (
-            !data.draft &&
-            new Date(data.pubDate) <= now
-        );
-    }) as BlogPost[];
+    try {
+        const currentDate = new Date();
+        const isProd = process.env.NODE_ENV === 'production';
+
+        console.log('Environment:', {
+            isProd,
+            currentDate,
+            cwd: process.cwd()
+        });
+
+        const posts = await getCollection('blog', ({ data }) => {
+            if (!isProd) return true;
+            return (
+                !data.draft &&
+                new Date(data.pubDate) <= currentDate
+            );
+        });
+
+        console.log('Retrieved posts:', posts.length);
+        return posts;
+    } catch (error) {
+        console.error('Error in getPublishedBlogCollection:', error);
+        return [];
+    }
 };

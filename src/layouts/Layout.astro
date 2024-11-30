@@ -2,58 +2,82 @@
 // インポート
 import { ViewTransitions } from "astro:transitions";
 import BaseHead from "@/components/BaseHead";
+import siteConfig from "@/config/site.config";
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
+import Sidebar from "@/components/Sidebar/Sidebar";
 
 // props の型定義
 interface Props {
   title: string;
-  description?: string;
+  description: string;
   image?: string;
+  ogType?: "website" | "article";
+  publishedTime?: string;
+  modifiedTime?: string;
+  category?: string;
+  tags?: string[];
+  series?: {
+    name: string;
+    index: number;
+  };
+  readingTime?: number;
 }
 
 // props の取得
-const { title, description, image } = Astro.props;
+const {
+  title,
+  description = siteConfig.description,
+  image,
+  ogType,
+  publishedTime,
+  modifiedTime,
+  category,
+  tags,
+  series,
+  readingTime,
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
-    <BaseHead title={title} description={description} image={image} />
+    <BaseHead
+      title={title}
+      description={description}
+      image={image}
+      ogType={ogType}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      category={category}
+      tags={tags}
+      series={series}
+      readingTime={readingTime}
+    />
     <ViewTransitions />
   </head>
   <body
     class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300"
   >
     <div class="flex flex-col min-h-screen">
-      {/* ヘッダーは後で実装 */}
-      {/* <Header /> */}
+      <!-- Header -->
+      <Header currentPath={Astro.url.pathname} />
 
-      <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <slot />
-      </main>
+      <div class="flex flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Sidebar -->
+        <aside class="hidden lg:block w-64">
+          <Sidebar />
+        </aside>
 
-      {/* フッターは後で実装 */}
-      {/* <Footer /> */}
+        <!-- Main Content -->
+        <main class="flex-grow">
+          <slot />
+        </main>
+      </div>
+
+      <!-- Footer -->
+      <Footer />
     </div>
-
-    <script is:inline>
-      // ダークモードの初期化
-      const theme = (() => {
-        if (
-          typeof localStorage !== "undefined" &&
-          localStorage.getItem("theme")
-        ) {
-          return localStorage.getItem("theme");
-        }
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          return "dark";
-        }
-        return "light";
-      })();
-
-      if (theme === "dark") {
-        document.documentElement.classList.add("dark");
-      }
-    </script>
   </body>
 </html>
 

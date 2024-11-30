@@ -4,24 +4,15 @@
  *
  * Displays a list of the most recent blog posts.
  * Shows the 5 most recent posts with their titles and publication dates.
- *
- * @component
- * @example
- * ```astro
- * ---
- * import RecentPosts from '@/components/Sidebar/RecentPosts.astro';
- * ---
- * <RecentPosts />
- * ```
  */
 
- import { getPublishedBlogCollection } from '@/utils/collections';
+import type { BlogPost } from "@/utils/collections";
+import { getPublishedBlogCollection } from "@/utils/collections";
 import siteConfig from "@/config/site.config";
 import { getPublishedPosts } from "@/utils/collections";
-import type { BlogPost } from "@/utils/collections";
 
 // Get all blog posts and filter published ones
-const allPosts = await getPublishedBlogCollection() as BlogPost[];
+const allPosts = await getPublishedBlogCollection();
 const publishedPosts = getPublishedPosts(allPosts)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
   .slice(0, 5);
@@ -30,31 +21,34 @@ const publishedPosts = getPublishedPosts(allPosts)
 <nav aria-label="Recent blog posts">
   <ul class="space-y-3">
     {
-      publishedPosts.map((post) => (
-        <li>
-          <a
-            href={`/blog/${post.slug}`}
-            class="group block transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-          >
-            <h3 class="line-clamp-2 text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-              {post.data.title}
-            </h3>
-            <time
-              datetime={post.data.pubDate.toISOString()}
-              class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+      publishedPosts.map((post) => {
+        const postPath = post.id.replace(/\.[^/.]+$/, ""); // Remove file extension
+        return (
+          <li>
+            <a
+              href={`/blog/${postPath}`}
+              class="group block transition-colors hover:text-blue-600 dark:hover:text-blue-400"
             >
-              {new Date(post.data.pubDate).toLocaleDateString(
-                siteConfig.locale,
-                {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                }
-              )}
-            </time>
-          </a>
-        </li>
-      ))
+              <h3 class="line-clamp-2 text-sm font-medium text-gray-900 group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                {post.data.title}
+              </h3>
+              <time
+                datetime={post.data.pubDate.toISOString()}
+                class="mt-1 text-xs text-gray-500 dark:text-gray-400"
+              >
+                {new Date(post.data.pubDate).toLocaleDateString(
+                  siteConfig.locale,
+                  {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  }
+                )}
+              </time>
+            </a>
+          </li>
+        );
+      })
     }
   </ul>
 </nav>

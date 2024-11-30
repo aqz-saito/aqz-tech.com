@@ -2,15 +2,18 @@
 import { Image } from "astro:assets";
 import Navigation from "./Navigation.astro";
 import ThemeToggle from "./ThemeToggle.astro";
-import logo from "@/assets/images/logo.svg";
 import siteConfig from "@/config/site.config";
 
-/**
- * Header component that displays the site logo, navigation menu, and theme toggle.
- * It also handles the scroll behavior to show or hide the header based on the scroll direction.
- */
+// Define currentPath from Astro.url
+const currentPath = Astro.url.pathname;
 
-const { currentPath } = Astro.props;
+// Import logo image if it exists
+let logoImage;
+try {
+  logoImage = (await import("@/assets/bland/logo.svg")).default;
+} catch (e) {
+  console.warn("Logo image not found, falling back to text-only header");
+}
 ---
 
 <header
@@ -22,13 +25,17 @@ const { currentPath } = Astro.props;
       <!-- Logo -->
       <div class="flex shrink-0 items-center">
         <a href="/" class="flex items-center" aria-label={siteConfig.name}>
-          <Image
-            src={logo}
-            alt={siteConfig.name}
-            width={32}
-            height={32}
-            class="h-8 w-8"
-          />
+          {
+            logoImage && (
+              <Image
+                src={logoImage}
+                alt={siteConfig.name}
+                width={32}
+                height={32}
+                class="h-8 w-8"
+              />
+            )
+          }
           <span
             class="ml-2 hidden text-xl font-bold text-gray-900 dark:text-white sm:block"
           >
@@ -49,34 +56,6 @@ const { currentPath } = Astro.props;
 </header>
 
 <script>
-  // Control the header's scroll behavior
-  let lastScrollY = window.scrollY;
-  const header = document.querySelector("header");
-
-  const handleScroll = () => {
-    const currentScrollY = window.scrollY;
-
-    if (!header) return;
-
-    // Determine scroll direction
-    if (currentScrollY > lastScrollY) {
-      // Scrolling down
-      header.style.transform = "translateY(-100%)";
-      header.style.transition = "transform 0.3s ease-in-out";
-    } else {
-      // Scrolling up
-      header.style.transform = "translateY(0)";
-      header.style.transition = "transform 0.3s ease-in-out";
-    }
-
-    // Always display at the top
-    if (currentScrollY < 50) {
-      header.style.transform = "translateY(0)";
-    }
-
-    lastScrollY = currentScrollY;
-  };
-
-  // Set up scroll event
-  window.addEventListener("scroll", handleScroll, { passive: true });
+  import { setupHeaderScroll } from "@/utils/HeaderScript";
+  setupHeaderScroll();
 </script>

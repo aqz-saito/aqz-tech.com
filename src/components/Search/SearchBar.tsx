@@ -1,24 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
 import Fuse from "fuse.js";
-import type { SearchResult, SearchProps } from "@/types/search.ts";
+import type { SearchResult } from "@/types/search.ts";
 
-interface Props {
-  placeholder?: string;
-}
+// interface Props {
+//   placeholder?: string;
+// }
 
 /**
  * SearchBar Component
  *
  * A search bar component that allows users to search articles.
- *
- * @param {string} [placeholder="Search..."] - Placeholder text for the search input.
  */
-export default function SearchBar({ placeholder = "Search..." }: Props) {
+export default function SearchBar() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [fuse, setFuse] = useState<Fuse<SearchResult>>();
   const searchRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     // Load search index
@@ -51,7 +48,6 @@ export default function SearchBar({ placeholder = "Search..." }: Props) {
           type="search"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
-          onFocus={() => setIsOpen(true)}
           placeholder="Search articles..."
           className="w-full px-4 py-2 rounded-md bg-gray-100 dark:bg-gray-800 
                      focus:outline-none focus:ring-2 focus:ring-blue-500"

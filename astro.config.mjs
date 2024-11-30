@@ -15,5 +15,6 @@ export default defineConfig({
       extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".astro"],
     },
   },
+  output: 'static',
   integrations: [react()],
 });

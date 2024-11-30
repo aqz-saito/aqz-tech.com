@@ -17,6 +17,61 @@ AQZ Tech Chronicleは、独自のオリジナルテーマを採用した技術�
 
 ## 2. コンポーネント設計
 
+### リソース
+
+```typescript
+src/
+└── assets/
+    ├── images/      # ブログ記事で使用する画像
+    │   └── blog/    # 記事ごとに整理された画像
+    └── brand/       # ロゴなどのブランドアセット
+        └── logo.svg # ロゴ画像
+
+public/
+└── favicon.svg      # ファビコン
+```
+
+- ブログ画像は src/assets/images/ で管理され、Astroの画像最適化が適用されます
+- ロゴなどのブランドアセットは src/assets/brand/ で集中管理できます
+- ファビコンは public/ に配置し、ブラウザから直接アクセス可能です
+- パスエイリアスがより明確になり、保守性が向上します
+
+### パスエイリアス
+
+``tsconfig.ts``に以下のように定義する。
+
+```typescript
+    "paths": {
+      "@/assets/*": [
+        "src/assets/*"
+      ],
+      "@/components/*": [
+        "src/components/*.astro"
+      ],
+      "@/layouts/*": [
+        "src/layouts/*.astro"
+      ],
+      "@/data/*": [
+        "src/data/*"
+      ],
+      "@/config/*": [
+        "src/config/*"
+      ],
+      "@/site-config": [
+        "src/config/site.config.ts"
+      ],
+      "@/styles/*": [
+        "src/styles/*.css"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*.ts"
+      ]
+    },
+```
+
 ### ベースレイアウト構成
 
 ```typescript
@@ -284,11 +339,54 @@ interface Article {
 #### コンテンツコレクション構成
 
 ```typescript
-src/content/
-  ├── config.ts          // コレクション設定
-  ├── blog/              // ブログ記事
-  └── authors/          // 著者情報
+src/
+├── content/
+│   ├── config.ts        # スキーマ定義
+│   └── blog/
+│       ├── post-1.md    # ブログ記事
+│       └── post-2.md
+└── data/
+    └── categories.ts    # カテゴリー定義
 ```
+
+##### スキーマ定義
+
+スキーマ定義は、Astroのコンテンツ（主にマークダウンやMDXファイル）のフロントマターを検証するための設計図として機能します。
+
+**主な役割：**
+
+- フロントマターの型安全性を確保
+- 必須フィールドと任意フィールドの指定
+- データの検証とバリデーション
+- 入力データの変換（例：文字列の日付をDateオブジェクトに変換）
+
+zodを使用してスキーマを定義することで：
+
+- ビルド時に型チェック
+- ランタイムでのデータ検証
+- TypeScriptの型推論による開発時のサポート
+
+が得られます。
+
+**実際の使用例：**
+
+```typescript
+// マークダウンファイルのフロントマター
+---
+title: "記事タイトル"
+pubDate: "2024-01-01"
+---
+
+// このフロントマターが、スキーマに従って検証される
+const blog = defineCollection({
+  schema: z.object({
+    title: z.string(),
+    pubDate: z.date()
+  })
+})
+```
+
+スキーマ定義は、コンテンツとプログラムコードの橋渡しの役割を果たしています。
 
 #### ユーティリティ関数群 (`/src/utils/collections.ts`)
 
@@ -632,3 +730,27 @@ Astro Content Collectionsを活用した堅牢な型システムを実装しま�
 - プロジェクト間で共有される型定義
 - インターフェースの一貫性確保
 - 型の再利用性の向上
+
+## 7. 検索機能
+
+```typescript
+aqz-tech.com/
+├── src/
+│   ├── content/
+│   │   └── blog/
+│   │       └── [your blog posts].md
+│   └── utils/
+│       └── collections.ts
+├── scripts/
+│   └── generate-search-index.ts
+└── package.json
+```
+
+package.json:
+
+```typescript
+  "scripts": {
+    "build:search": "NODE_ENV=production node --loader ts-node/esm --no-warnings scripts/generate-search-index.ts",
+    "build": "pnpm run build:search && astro check && astro build",
+  },
+```

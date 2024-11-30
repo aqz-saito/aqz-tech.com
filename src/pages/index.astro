@@ -1,16 +1,51 @@
 ---
+import Layout from "@/layouts/Layout";
+import siteConfig from "@/config/site.config";
+import ArticleCard from "@/components/Blog/ArticleCard";
 
+// ダミーデータ
+const articles = [
+  {
+    title: "Introduction to Astro",
+    description: "Learn the basics of Astro and how to get started.",
+    pubDate: "2023-10-01",
+    updatedDate: "2023-10-02",
+    heroImage: "/images/astro-intro.png",
+    category: "Programming",
+    tags: ["Astro", "JavaScript"],
+    readingTime: 5,
+  },
+  {
+    title: "Advanced Astro Techniques",
+    description: "Take your Astro skills to the next level with these advanced techniques.",
+    pubDate: "2023-10-05",
+    updatedDate: "2023-10-06",
+    heroImage: "/images/astro-advanced.png",
+    category: "Programming",
+    tags: ["Astro", "JavaScript"],
+    readingTime: 8,
+  },
+];
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout
+  title={siteConfig.title}
+  description={siteConfig.description}
+>
+  <section class="py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
+        Welcome to {siteConfig.name}
+      </h1>
+      <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+        {siteConfig.description}
+      </p>
+
+      <div class="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {articles.map(article => (
+          <ArticleCard {...article} />
+        ))}
+      </div>
+    </div>
+  </section>
+</Layout>
