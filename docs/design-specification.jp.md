@@ -172,7 +172,30 @@ interface Article {
 src/content/
   ├── config.ts          // コレクション設定
   ├── blog/              // ブログ記事
-  └── authors/          // 著者情報
+  └��─ authors/          // 著者情報
+```
+
+### ユーティリティ関数 (`/src/utils/collections.ts`)
+
+記事の取得と管理に関する共通のユーティリティ関数を提供します。
+
+#### 主な機能
+
+- 公開記事の取得
+  - 下書きのフィルタリング（本番環境のみ）
+  - 未来の公開日の記事の除外（本番環境のみ）
+  - 開発環境ではすべての記事を表示
+- 型安全性の確保
+  - BlogPost 型の定義
+  - Astroのコレクション型との連携
+
+#### 使用例
+
+```typescript
+import { getPublishedPosts } from "@/utils/collections";
+
+const allPosts = await getCollection("blog");
+const publishedPosts = getPublishedPosts(allPosts as BlogPost[]);
 ```
 
 ## 自動化処理
@@ -475,7 +498,88 @@ const breadcrumbSchema = {
 
 ## 4. コンポーネント構成
 
-- ProfileCard
-- CategoryList
+- Profile
+- Categories
 - RecentPosts
-- SearchBox
+- SearchBar
+
+# 開発順序
+
+1. 基盤コンポーネント（最初に実装）
+Layout.astro
+
+サイトの基本構造を定義
+ダークモード対応の基盤
+他のコンポーネントのコンテナとなる
+BaseHead.astro
+
+メタ情報の管理
+SEO対応の基盤
+スタイルシートの読み込み
+2. 骨格コンポーネント（第二段階）
+Header/Header.astro
+
+基本的なナビゲーション構造
+ロゴ配置
+Footer/Footer.astro
+
+基本的なフッター情報
+コピーライト表示
+Sidebar/Sidebar.astro
+
+サイドバーの基本構造
+レスポンシブ対応の基盤
+3. 機能コンポーネント（第三段階）
+Header/ThemeToggle.astro
+
+ダークモード切替機能
+Header/Navigation.astro
+
+メインナビゲーション
+モバイル対応
+Blog/ArticleCard.astro
+
+記事一覧表示の基本単位
+4. 追加機能コンポーネント（第四段階）
+その他のコンポーネント
+TOC
+シリーズナビゲーション
+検索機能
+etc.
+この順序で実装することで：
+
+基本機能から段階的に構築
+依存関係の管理が容易
+早期にプロトタイプが確認可能
+テストがしやすい
+
+# サイト設定設計仕様書
+
+## 1. 設定ファイルの構成
+
+### サイト全体の設定 (`/src/config/site.config.ts`)
+
+サイト全体で使用する共通の設定値を一元管理します。
+
+## 設定値の制約
+
+- ``name``: サイトの正式名称として使用
+- ``title``: SEOを考慮した完全なタイトル
+- ``description``: 検索結果に表示される説明文
+- ``image``, ogImage: 絶対パスまたは相対パス
+- ``lang``, locale: 国際化対応のための言語設定
+- ``themeColor``: カラーテーマの基準となる色
+
+## 拡張性
+
+- 新しい設定値の追加時はインターフェースを更新
+- 型安全性を確保するため as const を使用
+- 環境変数との連携も可能
+
+```typescript
+import siteConfig from '@/config/site.config';
+
+// 使用例
+const pageTitle = `${title} | ${siteConfig.name}`;
+const authorName = siteConfig.author.name;
+```

@@ -1,0 +1,83 @@
+---
+/**
+ * Categories Component
+ *
+ * A component that displays a list of blog categories with post counts.
+ * Categories are sorted alphabetically and include the number of posts in each category.
+ *
+ * @component
+ * @example
+ * ```astro
+ * ---
+ * import Categories from '@/components/Sidebar/Categories.astro';
+ * ---
+ * <Categories currentPath="/blog/category/typescript" />
+ * ```
+ */
+
+ import { getPublishedBlogCollection } from '@/utils/collections';
+
+interface Props {
+  /**
+   * The current page path for highlighting active category
+   */
+  currentPath?: string;
+}
+
+const { currentPath } = Astro.props;
+
+// Get all blog posts and count categories
+interface BlogPost {
+  data: {
+    category: string;
+  };
+}
+
+const posts = await getPublishedBlogCollection();
+const categories = posts.reduce(
+  (acc: Record<string, number>, post: BlogPost) => {
+    const category = post.data.category;
+    acc[category] = (acc[category] || 0) + 1;
+    return acc;
+  },
+  {} as Record<string, number>
+);
+
+// Sort categories alphabetically
+const sortedCategories = Object.entries(categories).sort((a, b) =>
+  a[0].localeCompare(b[0])
+);
+---
+
+<nav aria-label="Blog Categories">
+  <ul class="space-y-2">
+    {
+      sortedCategories.map(([category, count]) => {
+        const isActive = currentPath?.includes(
+          `/category/${category.toLowerCase()}`
+        );
+        return (
+          <li>
+            <a
+              href={`/category/${category.toLowerCase()}`}
+              class:list={[
+                "flex justify-between items-center py-1 px-2 rounded-md transition-colors",
+                {
+                  "text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30":
+                    isActive,
+                  "hover:bg-gray-100 dark:hover:bg-gray-800": !isActive,
+                },
+              ]}
+              aria-current={isActive ? "page" : undefined}
+            >
+              <span>{category}</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">
+                ({count})
+              </span>
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</nav>

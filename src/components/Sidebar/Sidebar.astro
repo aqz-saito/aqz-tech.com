@@ -1,0 +1,85 @@
+---
+import ProfileCard from "./Profile.astro";
+import CategoryList from "./Categories.astro";
+import RecentPosts from "./RecentPosts.astro";
+import SearchBox from "../Search/SearchBar.astro";
+
+/**
+ * Sidebar component that displays supplementary content and navigation.
+ *
+ * @component
+ * @description
+ * - Displays author profile
+ * - Shows category list
+ * - Lists recent posts
+ * - Provides search functionality
+ * - Responsive design with different layouts for mobile/desktop
+ * - Sticky positioning on desktop
+ *
+ * @example
+ * ---
+ * import Sidebar from '@/components/Sidebar/Sidebar.astro';
+ * ---
+ * <Sidebar />
+ */
+
+interface Props {
+  /**
+   * Current page path for highlighting active categories
+   */
+  currentPath?: string;
+}
+
+const { currentPath } = Astro.props;
+---
+
+<aside class="lg:sticky lg:top-20 lg:col-span-1 lg:h-[calc(100vh-5rem)]">
+  <div class="space-y-8 lg:overflow-y-auto lg:pb-8">
+    <!-- Author Profile -->
+    <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-800">
+      <ProfileCard />
+    </div>
+
+    <!-- Category Navigation -->
+    <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-800">
+      <h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">
+        Categories
+      </h2>
+      <CategoryList currentPath={currentPath} />
+    </div>
+
+    <!-- Recent Posts -->
+    <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-800">
+      <h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">
+        Recent Posts
+      </h2>
+      <RecentPosts />
+    </div>
+
+    <!-- Search Box -->
+    <div class="rounded-lg border border-gray-200 p-6 dark:border-gray-800">
+      <h2 class="mb-4 text-lg font-bold text-gray-900 dark:text-white">
+        Search
+      </h2>
+      <SearchBox />
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Control sidebar scroll behavior
+  const sidebar = document.querySelector("aside");
+  const header = document.querySelector("header");
+
+  if (sidebar && header) {
+    // Adjust sidebar top position based on header height
+    const headerHeight = header.getBoundingClientRect().height;
+    sidebar.style.top = `${headerHeight + 20}px`;
+    sidebar.style.height = `calc(100vh - ${headerHeight + 20}px)`;
+  }
+
+  // Disable scroll on mobile devices
+  if (window.innerWidth < 1024) {
+    sidebar?.classList.remove("lg:sticky");
+  }
+</script>

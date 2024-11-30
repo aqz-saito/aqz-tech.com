@@ -1,5 +1,19 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import react from "@astrojs/react";
 
-// https://astro.build/config
-export default defineConfig({});
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+  vite: {
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src"),
+      },
+      extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".astro"],
+    },
+  },
+  integrations: [react()],
+});

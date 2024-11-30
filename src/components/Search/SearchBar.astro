@@ -1,0 +1,17 @@
+---
+/**
+ * Search bar component.
+ * Provides the user interface for search input.
+ */
+import SearchBarClient from "./SearchBar";
+---
+
+<div class="search-container">
+  <SearchBarClient client:load />
+</div>
+
+<style>
+  .search-container {
+    @apply relative w-full max-w-md mx-auto;
+  }
+</style>

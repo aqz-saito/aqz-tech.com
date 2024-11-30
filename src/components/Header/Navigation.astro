@@ -1,0 +1,179 @@
+---
+/**
+ * Navigation component for the main header.
+ *
+ * @component
+ * @description
+ * Provides main navigation menu with responsive design:
+ * - Desktop: Horizontal menu
+ * - Mobile: Hamburger menu with slide animation
+ * - Handles active states
+ * - Supports keyboard navigation
+ *
+ * @prop {string} currentPath - Current page path for highlighting active items
+ *
+ * @example
+ * ---
+ * import Navigation from '@/components/Header/Navigation.astro';
+ * ---
+ * <Navigation currentPath="/blog" />
+ */
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = "/" } = Astro.props;
+
+// Navigation items configuration
+const navItems = [
+  { label: "Blog", href: "/blog" },
+  { label: "About", href: "/about" },
+  { label: "Profile", href: "/profile" },
+] as const;
+---
+
+<nav class="hidden lg:block">
+  {/* Desktop Navigation */}
+  <ul class="flex items-center space-x-8">
+    {
+      navItems.map(({ label, href }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              "text-sm font-medium transition-colors",
+              currentPath?.startsWith(href)
+                ? "text-gray-900 dark:text-white"
+                : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white",
+            ]}
+            aria-current={currentPath?.startsWith(href) ? "page" : undefined}
+          >
+            {label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>
+
+{/* Mobile Navigation */}
+<nav class="lg:hidden">
+  <button
+    id="mobile-menu-button"
+    type="button"
+    class="inline-flex items-center justify-center rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+    aria-controls="mobile-menu"
+    aria-expanded="false"
+  >
+    <span class="sr-only">Open main menu</span>
+    {/* Hamburger icon */}
+    <svg
+      class="h-6 w-6"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
+  {/* Mobile menu panel */}
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 z-50 hidden transform bg-white transition-transform dark:bg-gray-900"
+  >
+    <div class="flex h-16 items-center justify-between px-4">
+      <span class="text-lg font-bold text-gray-900 dark:text-white">Menu</span>
+      <button
+        id="mobile-menu-close"
+        type="button"
+        class="rounded-lg p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+      >
+        <span class="sr-only">Close menu</span>
+        <svg
+          class="h-6 w-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <ul class="space-y-2 px-4">
+      {
+        navItems.map(({ label, href }) => (
+          <li>
+            <a
+              href={href}
+              class:list={[
+                "block rounded-lg p-2 text-base font-medium transition-colors",
+                currentPath?.startsWith(href)
+                  ? "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white",
+              ]}
+              aria-current={currentPath?.startsWith(href) ? "page" : undefined}
+            >
+              {label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</nav>
+
+<script>
+  // Handle mobile menu interactions
+  const mobileMenuButton = document.getElementById("mobile-menu-button");
+  const mobileMenuClose = document.getElementById("mobile-menu-close");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const body = document.body;
+
+  function toggleMenu(show: boolean) {
+    if (!mobileMenu || !mobileMenuButton) return;
+
+    if (show) {
+      mobileMenu.classList.remove("hidden");
+      mobileMenu.classList.add("translate-x-0");
+      mobileMenuButton.setAttribute("aria-expanded", "true");
+      body.style.overflow = "hidden";
+    } else {
+      mobileMenu.classList.add("hidden");
+      mobileMenu.classList.remove("translate-x-0");
+      mobileMenuButton.setAttribute("aria-expanded", "false");
+      body.style.overflow = "";
+    }
+  }
+
+  // Event listeners
+  mobileMenuButton?.addEventListener("click", () => toggleMenu(true));
+  mobileMenuClose?.addEventListener("click", () => toggleMenu(false));
+
+  // Close menu on ESC key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") toggleMenu(false);
+  });
+
+  // Close menu when clicking outside
+  document.addEventListener("click", (e) => {
+    if (
+      mobileMenu &&
+      !mobileMenu.contains(e.target as Node) &&
+      !mobileMenuButton?.contains(e.target as Node)
+    ) {
+      toggleMenu(false);
+    }
+  });
+</script>
