@@ -1,0 +1,67 @@
+---
+/**
+ * TagCloud Component
+ *
+ * Displays a weighted cloud of tags used in blog posts.
+ * - Shows the 20 most frequently used tags
+ * - Tag size is proportional to usage frequency
+ * - Tags are sorted by frequency
+ * - Links to tag-specific archive pages
+ *
+ * @component
+ * @example
+ * ```astro
+ * ---
+ * import TagCloud from '@/components/Sidebar/TagCloud.astro';
+ * ---
+ * <TagCloud />
+ * ```
+ */
+
+ import { getPublishedBlogCollection } from '@/utils/collections';
+import { getPublishedPosts } from "@/utils/collections";
+import type { BlogPost } from "@/utils/collections";
+
+// Get published posts and extract tags
+const allPosts = await getPublishedBlogCollection() as BlogPost[];
+const publishedPosts = getPublishedPosts(allPosts);
+
+// Count tag occurrences
+const tagCount = publishedPosts.reduce((acc: Record<string, number>, post) => {
+  post.data.tags?.forEach((tag: string) => {
+    acc[tag] = (acc[tag] || 0) + 1;
+  });
+  return acc;
+}, {});
+
+// Sort tags by frequency and get top 20
+const tags = Object.entries(tagCount)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 20);
+
+// Calculate font sizes (min: 0.875rem, max: 1.25rem)
+const maxCount = Math.max(...Object.values(tagCount));
+const getSize = (count: number) => {
+  const weight = count / maxCount;
+  return 0.875 + weight * 0.375;
+};
+---
+
+<nav aria-label="Tag cloud" class="flex flex-wrap gap-2">
+  {
+    tags.map(([tag, count]) => (
+      <a
+        href={`/tag/${tag.toLowerCase()}`}
+        class:list={[
+          "inline-block rounded-full px-3 py-1 text-sm transition-colors",
+          "bg-gray-100 hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-blue-900/30",
+        ]}
+        style={`font-size: ${getSize(count)}rem`}
+        aria-label={`${tag} (${count} posts)`}
+      >
+        <span class="text-gray-900 dark:text-white">{tag}</span>
+        <span class="ml-1 text-gray-500 dark:text-gray-400">({count})</span>
+      </a>
+    ))
+  }
+</nav>

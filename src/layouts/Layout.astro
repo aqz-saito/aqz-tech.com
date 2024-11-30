@@ -1,0 +1,72 @@
+---
+// インポート
+import { ViewTransitions } from "astro:transitions";
+import BaseHead from "@/components/BaseHead";
+
+// props の型定義
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+// props の取得
+const { title, description, image } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <BaseHead title={title} description={description} image={image} />
+    <ViewTransitions />
+  </head>
+  <body
+    class="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300"
+  >
+    <div class="flex flex-col min-h-screen">
+      {/* ヘッダーは後で実装 */}
+      {/* <Header /> */}
+
+      <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <slot />
+      </main>
+
+      {/* フッターは後で実装 */}
+      {/* <Footer /> */}
+    </div>
+
+    <script is:inline>
+      // ダークモードの初期化
+      const theme = (() => {
+        if (
+          typeof localStorage !== "undefined" &&
+          localStorage.getItem("theme")
+        ) {
+          return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          return "dark";
+        }
+        return "light";
+      })();
+
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --accent: 136, 58, 234;
+    --accent-light: 224, 204, 250;
+    --accent-dark: 49, 10, 101;
+    --accent-gradient: linear-gradient(
+      45deg,
+      rgb(var(--accent)),
+      rgb(var(--accent-light)) 30%,
+      white 60%
+    );
+  }
+</style>

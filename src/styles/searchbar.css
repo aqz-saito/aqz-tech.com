@@ -1,0 +1,23 @@
+@layer components {
+  .search-results-enter {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  .search-results-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 200ms ease-out, transform 200ms ease-out;
+  }
+
+  .search-results-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .search-results-exit-active {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 200ms ease-in, transform 200ms ease-in;
+  }
+}
